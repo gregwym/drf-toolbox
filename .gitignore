@@ -1,0 +1,45 @@
+# Apple
+.DS_Store
+
+# Python
+*.egg-info
+*.pyc
+__pycache__
+
+# PyCharm  
+.idea/
+
+# Sphinx
+docs/_build
+
+# Testing
+.coverage
+.coverage.*
+.coverage-html/
+.tox/
+
+# Vagrant
+.vagrant/
+
+# Chef
+Berksfile.lock
+
+# Bundler
+Gemfile.lock
+bin/*
+.bundle/*
+
+# Kitchen
+.kitchen/
+.kitchen.local.yml
+
+# vim
+*~
+*#
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+
+# Other temporary files
+*.pid
