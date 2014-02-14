@@ -39,4 +39,4 @@ Documentaiton is graciously hosted by [Read the Docs][3].
 
   [1]: http://www.django-rest-framework.org/
   [2]: http://django-pgfields.readthedocs.org/
-  [3]: http://drf-toolbox.readthedocs.rog/
+  [3]: http://drf-toolbox.readthedocs.org/
