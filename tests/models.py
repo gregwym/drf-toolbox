@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 from drf_toolbox.compat import models, django_pgfields_installed
+from drf_toolbox import serializers
 from tests.compat import mock
 
 
@@ -63,6 +64,22 @@ if django_pgfields_installed:
             x = models.IntegerField()
             y = models.IntegerField()
 
+        class SizeField(models.CompositeField):
+            width = models.IntegerField()
+            height = models.IntegerField()
+
+            def get_drf_serializer_field(self):
+                return SizeSerializerField(
+                    fields={
+                        'width': serializers.IntegerField(),
+                        'height': serializers.IntegerField(),
+                    },
+                    instance_class=self.instance_class,
+                )
+
+        class SizeSerializerField(serializers.CompositeField):
+            pass
+
 
     class PGFieldsModel(models.Model):
         id = models.UUIDField(auto_add=True, primary_key=True)
@@ -70,6 +87,7 @@ if django_pgfields_installed:
         array = models.ArrayField(of=models.IntegerField)
         extra = models.JSONField()
         coords = CoordsField()
+        size = SizeField()
 
         class Meta:
             app_label = 'tests'

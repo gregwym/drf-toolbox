@@ -51,6 +51,7 @@ if django_pgfields_installed:
         """A REST Framework serialization field for handling composite fields,
         serializing them into a Python dictionary and back.
         """
+        suppress_form_parsing = True
         type_label = 'dict'
 
         def __init__(self, fields, instance_class, **kwargs):

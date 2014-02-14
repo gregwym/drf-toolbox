@@ -49,6 +49,12 @@ class BaseModelSerializer(serializers.ModelSerializer):
         # If this field is a CompositeField subclass, we can just use
         # an intelligent CompositeField serialization class to handle it.
         if isinstance(model_field, models.CompositeField):
+            # Composite fields may define their own serializers.
+            # If this one does, return it.
+            if hasattr(model_field, 'get_drf_serializer_field'):
+                return model_field.get_drf_serializer_field()
+
+            # Create and return a generic composite field serializer.
             subfields = {}
             for name, model_subfield in model_field._meta.fields:
                 subfields[name] = self.get_field(model_subfield)

@@ -226,19 +226,6 @@ class SerializerSuite(unittest.TestCase):
             'foo': None,
         }, answer)
 
-    @unittest.skipUnless(django_pgfields_installed, NO_DJANGOPG)
-    def test_uuid_field_no_auto_add(self):
-        """Test that a UUID field without `auto_add` returns the
-        correct serializer field.
-        """
-        # Instantiate my fake model serializer and establish that
-        # we get back a UUIDField that is not read-only.
-        s = test_serializers.PGFieldsSerializer()
-        fields_dict = s.get_default_fields()
-        self.assertIsInstance(fields_dict['uuid'], fields.UUIDField)
-        self.assertEqual(fields_dict['uuid'].required, True)
-        self.assertEqual(fields_dict['uuid'].read_only, False)
-
     def test_reverse_related_field_serializer(self):
         """Establish that a related field can be specified on a serializer
         without incident.
@@ -469,6 +456,27 @@ class PostgresFieldTests(unittest.TestCase):
     """Test suite to establish that the custom serializer fields that
     correlate to django_pg model fields work in the way we expect.
     """
+    def test_uuid_field_no_auto_add(self):
+        """Test that a UUID field without `auto_add` returns the
+        correct serializer field.
+        """
+        # Instantiate my fake model serializer and establish that
+        # we get back a UUIDField that is not read-only.
+        s = test_serializers.PGFieldsSerializer()
+        fields_dict = s.get_default_fields()
+        self.assertIsInstance(fields_dict['uuid'], fields.UUIDField)
+        self.assertEqual(fields_dict['uuid'].required, True)
+        self.assertEqual(fields_dict['uuid'].read_only, False)
+
+    def test_composite_field_without_drf_method(self):
+        """Establish that we get a plain CompositeField if the model
+        field does not instruct us otherwise.
+        """
+        s = test_serializers.PGFieldsSerializer()
+        fields_dict = s.get_default_fields()
+        self.assertEqual(fields_dict['coords'].__class__,
+                         fields.CompositeField)
+
     def test_json_field_from_native(self):
         """Determine that a JSON serializer sends the value
         through on the `from_native` method.

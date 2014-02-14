@@ -85,7 +85,7 @@ class ModelViewSetTests(unittest.TestCase):
         class CompositeModel(models.Model):
             foo = test_models.CoordsField()
             class Meta:
-                app_label = 'irrelevant'
+                app_label = 'dfghgfdhfgh'
 
         class CompositeViewSet(ModelViewSet):
             model = CompositeModel
@@ -97,6 +97,58 @@ class ModelViewSetTests(unittest.TestCase):
         )
         result = cvs.options(self.request)
         self.assertEqual(result.data['parses'], ['application/json'])
+
+    @unittest.skipUnless(django_pgfields_installed, NO_DJANGOPG)
+    def test_parser_classes_with_special_composite_field(self):
+        """Establish that our `parser_classes` property works as
+        expected, and still removes HTML if it gets a custom class
+        that does not disable that behavior.
+        """
+        class CompositeModel(models.Model):
+            foo = test_models.SizeField()
+            class Meta:
+                app_label = 'tryeytry'
+
+        class CompositeViewSet(ModelViewSet):
+            model = CompositeModel
+
+        cvs = CompositeViewSet(
+            request=RequestFactory().options('/foo/',
+                                             HTTP_ACCEPT='application/json'),
+            format_kwarg='format',
+        )
+        result = cvs.options(self.request)
+        self.assertEqual(result.data['parses'], ['application/json'])
+
+    @unittest.skipUnless(django_pgfields_installed, NO_DJANGOPG)
+    def test_parser_classes_with_special_composite_field_passthrough(self):
+        """Establish that our `parser_classes` property works as
+        expected, and does **not** remove HTML if the serializer field
+        says it is not necessary.
+        """
+        class CompositeModel(models.Model):
+            foo = test_models.SizeField()
+            class Meta:
+                app_label = 'cndfgh'
+
+        class CompositeViewSet(ModelViewSet):
+            model = CompositeModel
+
+        try:
+            test_models.SizeSerializerField.suppress_form_parsing = False
+            cvs = CompositeViewSet(
+                request=RequestFactory().options('/foo/',
+                                                 HTTP_ACCEPT='application/json'),
+                format_kwarg='format',
+            )
+            result = cvs.options(self.request)
+            self.assertEqual(result.data['parses'], [
+                'application/json',
+                'application/x-www-form-urlencoded',
+                'multipart/form-data',
+            ])
+        finally:
+            test_models.SizeSerializerField.suppress_form_parsing = True
 
     def test_get_serializer_nested(self):
         """Establish that our `get_serializer` method works on a

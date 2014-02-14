@@ -26,7 +26,22 @@ class ModelViewSet(viewsets.ModelViewSet):
         # because we don't have a good way to represent the nested
         # relationships except through a format like JSON or YAML.
         fields = self.get_serializer_class().Meta.model._meta.fields
-        if any([isinstance(f, models.CompositeField) for f in fields]):
+        for field in fields:
+            # We're only interested in CompositeField subclasses;
+            # ignore the rest.
+            if not isinstance(field, models.CompositeField):
+                continue
+
+            # Some composite fields may define serializer fields that
+            # do not need to suppress form parsing; if this is one of those
+            # cases, do nothing.
+            if hasattr(field, 'get_drf_serializer_field'):
+                sf = field.get_drf_serializer_field()
+                if not sf.suppress_form_parsing:
+                    continue
+
+            # Okay, we do actually need to suppress parsing using
+            # form-urlencoded; do this now.
             problem_classes = (parsers.FormParser, parsers.MultiPartParser)
             for parser in reversed(copy(answer)):
                 if issubclass(parser, problem_classes):
