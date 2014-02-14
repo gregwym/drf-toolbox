@@ -1,0 +1,26 @@
+---
+language: python
+python:
+  - 3.3
+  - 2.7
+env:
+  - WITH_PGFIELDS=1
+  - WITH_PGFIELDS=0
+
+cache: apt
+branches:
+  except:
+    - /-unstable$/
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install -y binutils libproj-dev gdal-bin python3.3-tk
+  - pip install --upgrade pip
+  - pip install coverage coveralls
+  - pip install -r requirements.txt
+  - if [[ $WITH_PGFIELDS -eq 1 ]]; then pip install django-pgfields; fi
+  
+script: coverage run -p tests/runtests.py
+after_success:
+  - coverage combine
+  - coveralls

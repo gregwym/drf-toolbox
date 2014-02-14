@@ -1,5 +1,7 @@
 ## Welcome to DRF Toolbox
 
+[![Build Status](https://travis-ci.org/feedmagnet/drf-toolbox.png)](https://travis-ci.org/feedmagnet/drf-toolbox) [![Coverage Status](https://coveralls.io/repos/feedmagnet/drf-toolbox/badge.png)](https://coveralls.io/r/feedmagnet/drf-toolbox)
+
 **drf-toolbox** is a general set of enhancements for the excellent
 [Django REST Framework][1], which enables fully-featured REST APIs written
 on top of Django.
@@ -31,5 +33,10 @@ or higher. If the django-pgfields are being used, 1.5.1 or higher is expected.
 New BSD.
 
 
+### Documentation
+
+Documentaiton is graciously hosted by [Read the Docs][3].
+
   [1]: http://www.django-rest-framework.org/
   [2]: http://django-pgfields.readthedocs.org/
+  [3]: http://drf-toolbox.readthedocs.rog/

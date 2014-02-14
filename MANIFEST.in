@@ -1,0 +1,12 @@
+# ----------------------
+# -- Package Metadata --
+# ----------------------
+include VERSION
+include drf-toolbox/.VERSION
+include requirements.txt
+include tests/requirements.txt
+
+# -------------------
+# -- Documentation --
+# -------------------
+# recursive-include docs *
