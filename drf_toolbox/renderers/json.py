@@ -22,18 +22,18 @@ class JSONEncoder(encoders.JSONEncoder):
 
 class JSONRenderer(renderers.JSONRenderer):
     """Renderer which serializes to JSON."""
-    encoder_class = json.JSONEncoder
+    encoder_class = JSONEncoder
 
 
 class UnicodeJSONRenderer(renderers.UnicodeJSONRenderer):
     """Renderer which serializes to JSON, and does not escape
     Unicode characters.
     """
-    encoder_class = json.JSONEncoder
+    encoder_class = JSONEncoder
 
 
 class JSONPRenderer(renderers.JSONPRenderer):
     """Renderer which serializes to JSON, wrapping the JSON output
     in a callback function.
     """
-    encoder_class = json.JSONEncoder
+    encoder_class = JSONEncoder
