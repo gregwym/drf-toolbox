@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 from copy import copy
+from drf_toolbox.compat import models
 from drf_toolbox.serializers import ModelSerializer
 from importlib import import_module
 from rest_framework import routers
@@ -9,6 +10,8 @@ import re
 import six
 
 
+base_regex = re.compile(r'[^/.]')
+integer_regex = re.compile(r'[0-9]+')
 uuid_regex = re.compile(r'[0-9a-f-]{36}')
 
 
@@ -66,15 +69,36 @@ class Router(routers.DefaultRouter):
         """Return a regular expression that correctly checks
         for a UUID as a PK value.
         """
+        # Create a class that definitely will not be a superclass
+        # of whatever we might get on our isinstance check later.
+        #
+        # This gets around the fact that we can't guarantee that
+        # models.UUIDField will exist, since django-pgfields might not
+        # be installed.
+        class NotSuper(object):
+            pass
+
         # Determine the appropriate lookup field.
         lookup_field = getattr(viewset, 'lookup_field', 'pk')
         if lookup_prefix:
             lookup_field = '%s__%s' % (lookup_prefix, lookup_field)
 
+        # Determine the appropriate regex.
+        lookup_fragment = base_regex.pattern
+        if ((lookup_field == 'pk' or lookup_field.endswith('__pk')) and
+                        hasattr(viewset, 'model')):
+            pk_field = viewset.model._meta.pk
+            if isinstance(pk_field, models.AutoField):
+                lookup_fragment = integer_regex.pattern
+            if isinstance(pk_field, getattr(models, 'UUIDField', NotSuper)):
+                lookup_fragment = uuid_regex.pattern
+        if hasattr(viewset, 'lookup_regex'):
+            lookup_fragment = viewset.lookup_regex
+
         # Generate the regex to return.
-        return r'(?P<{lookup_field}>{uuid})'.format(
+        return r'(?P<{lookup_field}>{fragment})'.format(
+            fragment=lookup_fragment,
             lookup_field=lookup_field,
-            uuid=uuid_regex.pattern,
         )
 
     def get_preformatted_routes(self, recursive_prefix=''):
