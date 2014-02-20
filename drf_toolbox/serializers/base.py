@@ -84,7 +84,13 @@ class BaseModelSerializer(serializers.ModelSerializer):
         if isinstance(model_field, models.UUIDField):
             if model_field._auto_add:
                 return postgres.UUIDField(read_only=True, required=False)
-            return postgres.UUIDField()
+            return postgres.UUIDField(
+                default=model_field.default,
+                help_text=model_field.help_text,
+                label=model_field.verbose_name,
+                read_only=not model_field.editable,
+                required=not model_field.blank,
+            )
 
         # Okay, this isn't a special field; run the superclass implementation.
         return super(BaseModelSerializer, self).get_field(model_field)
