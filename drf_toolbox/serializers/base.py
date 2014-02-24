@@ -143,10 +143,6 @@ class ModelSerializer(BaseModelSerializer):
                             field.queryset.model in self._seen_models):
                 fields.pop(field_name, None)
 
-        # Ensure that we have a view name.
-        if not self.opts.view_name:
-            self.opts.view_name = self._get_default_view_name()
-
         # Use an OrderedDict to cause our keys to be in mostly-alpha order.
         answer = collections.OrderedDict()
 
@@ -209,7 +205,6 @@ class ModelSerializer(BaseModelSerializer):
         kwargs = {
             'many': to_many,
             'queryset': related_model._default_manager,
-            'view_name': self._get_default_view_name(related_model),
         }
 
         # If we have set filter or exclude lists for this related field,
@@ -260,24 +255,6 @@ class ModelSerializer(BaseModelSerializer):
         the serializer (e.g. a default field that is excluded).
         """
         return self.fields.get(key, self.get_default_fields()[key])
-
-    def _get_default_view_name(self, model=None):
-        """Return the name to assign in the URL configuration if none
-        is provided in the `Meta` inner class.
-        """
-        # If no model is provided, assume we're dealing with
-        # the model on this serializer.
-        if not model:
-            model = self.opts.model
-
-        # Determine from the models `Meta` inner class what
-        # an appropriate view name is.
-        model_meta = model._meta
-        format_kwargs = {
-            'app_label': model_meta.app_label,
-            'model_name': model_meta.object_name.lower()
-        }
-        return self._default_view_name % format_kwargs
 
     def _viewset_uses_me(self, viewset):
         """Given a viewset, return True if we believe that the viewset uses

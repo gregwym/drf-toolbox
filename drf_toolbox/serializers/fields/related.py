@@ -10,11 +10,12 @@ from rest_framework.settings import api_settings
 __all__ = ('RelatedField',)
 
 
-class RelatedField(serializers.HyperlinkedRelatedField):
+class RelatedField(serializers.RelatedField):
     """Related field class that returns both the ID and
     the API endpoint URL.
     """
     default_lookup_field = 'pk'
+    read_only = False
 
     def __init__(self, seen_models, **kwargs):
         self._seen_models = set(seen_models)

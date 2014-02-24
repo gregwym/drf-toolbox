@@ -190,7 +190,7 @@ class SerializerSuite(unittest.TestCase):
         """Test that a related field receiving a model object
         with no primary key returns None.
         """
-        rel_field = RelatedField((), view_name='irrelevant')
+        rel_field = RelatedField(())
         answer = rel_field.to_native(test_models.ChildModel())
         self.assertEqual(answer, None)
 
@@ -356,7 +356,7 @@ class RelatedFieldTests(unittest.TestCase):
         self.cm = test_models.ChildModel
 
         # Set up related fields and things.
-        self.rel_field = RelatedField((), view_name='irrelevant')
+        self.rel_field = RelatedField(())
         self.rel_field.context = {}
         if hasattr(test_models.NormalModel.objects, 'get_queryset'):
             self.rel_field.queryset = NormalModel.objects.get_queryset()
