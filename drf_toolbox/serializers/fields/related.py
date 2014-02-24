@@ -14,6 +14,8 @@ class RelatedField(serializers.HyperlinkedRelatedField):
     """Related field class that returns both the ID and
     the API endpoint URL.
     """
+    default_lookup_field = 'pk'
+
     def __init__(self, seen_models, **kwargs):
         self._seen_models = set(seen_models)
         self._fields = kwargs.pop('fields', [])
@@ -31,7 +33,7 @@ class RelatedField(serializers.HyperlinkedRelatedField):
         # ID of the foreign relation as a primative.  Convert this to a
         # dictionary.
         if not isinstance(value, dict):
-            params['pk'] = value
+            params[self.default_lookup_field] = value
         else:
             params = value
 
