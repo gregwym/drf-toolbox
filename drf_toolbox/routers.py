@@ -65,6 +65,30 @@ class Router(routers.DefaultRouter):
         """
         return self.get_preformatted_routes()
 
+    def get_default_base_name(self, viewset):
+        """If `base_name` is not specified, attempt to determine it
+        automatically from the viewset.
+
+        If a `serializer_class` but no `model` or `queryset` is provided,
+        assign the serializer class' model to the viewset and call the
+        superclass method.
+        """
+        # Sanity check: If we already have a viewset model or queryset,
+        # just call the superclass method and be done.
+        if (getattr(viewset, 'model', None) or
+                        getattr(viewset, 'queryset', None)):
+            return super(Router, self).get_default_base_name(viewset)
+
+        # If there is a serializer class with a model in its `Meta`, attach
+        # that model to the viewset.
+        sc = viewset.serializer_class
+        for attr in ('model', 'queryset'):
+            setattr(viewset, attr, getattr(sc.Meta, attr, None))
+
+        # Okay, we've done everything we can, now call the superclass method,
+        # and let the chips fall where they may.
+        return super(Router, self).get_default_base_name(viewset)
+
     def get_lookup_regex(self, viewset, lookup_prefix=''):
         """Return a regular expression that correctly checks
         for a UUID as a PK value.
@@ -85,8 +109,8 @@ class Router(routers.DefaultRouter):
 
         # Determine the appropriate regex.
         lookup_fragment = base_regex.pattern
-        if ((lookup_field == 'pk' or lookup_field.endswith('__pk')) and
-                        hasattr(viewset, 'model')):
+        model = getattr(viewset, 'model', None)
+        if model and (lookup_field == 'pk' or lookup_field.endswith('__pk')):
             pk_field = viewset.model._meta.pk
             if isinstance(pk_field, models.AutoField):
                 lookup_fragment = integer_regex.pattern
