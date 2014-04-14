@@ -1,5 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from drf_toolbox import routers
+from drf_toolbox import routers, serializers
 from drf_toolbox.compat import models, django_pgfields_installed
 from drf_toolbox.decorators import base_action
 from rest_framework import viewsets
@@ -134,6 +134,40 @@ class RouterTests(unittest.TestCase):
             pattern = urlpattern.regex.pattern
             if '<pk>' in pattern:
                 self.assertIn('(?P<pk>[0123456789]+)', pattern)
+            if '<format>' in urlpattern.regex.pattern:
+                self.assertFalse(pattern.endswith(r'/\.(?P<format>[a-z]+)$'))
+
+    def test_router_urls_using_serializer_class_only(self):
+        """Establish that a router with a viewset attached gets the
+        expected URLs, even if the viewset uses a serializer class instead
+        of a model.
+
+        See #2: https://github.com/feedmagnet/drf-toolbox/issues/2
+        """
+        # Create a model, serializer class, and viewset.
+        # The viewset should reference the serializer class only.
+        class PhonyModelV(models.Model):
+            class Meta:
+                app_label = 'tests'
+
+        class PhonySerializerV(serializers.ModelSerializer):
+            class Meta:
+                model = PhonyModelV
+
+        class PhonyViewSetV(viewsets.ModelViewSet):
+            serializer_class = PhonySerializerV
+
+        # Create the router and register our viewset.
+        with mock.patch('drf_toolbox.routers.ModelSerializer'):
+            router = routers.Router()
+        router.register('phony', PhonyViewSetV)
+
+        # Attempt to establish that we got back what we expected.
+        for urlpattern in router.urls:
+            pattern = urlpattern.regex.pattern
+            integer_regex = routers.integer_regex
+            if '<pk>' in pattern:
+                self.assertIn('(?P<pk>%s)' % integer_regex.pattern, pattern)
             if '<format>' in urlpattern.regex.pattern:
                 self.assertFalse(pattern.endswith(r'/\.(?P<format>[a-z]+)$'))
 
