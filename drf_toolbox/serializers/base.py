@@ -153,7 +153,7 @@ class ModelSerializer(BaseModelSerializer):
 
         # Add the `api_endpoints` field, which will give us the
         # hyperlink to the given item.
-        # 
+        #
         # Do it at this point, which will cause the API endpoint field
         # to be shown second.
         viewset = self.context.get('view', None)
@@ -230,7 +230,7 @@ class ModelSerializer(BaseModelSerializer):
 
         # Create a new set object that includes all seen models,
         # as well as the current model, to send to the related field.
-        seen_models = self._seen_models.union({ self.opts.model })
+        seen_models = self._seen_models.union(set([self.opts.model]))
 
         # Instantiate and return our field.
         rel_field = related.RelatedField(seen_models=seen_models, **kwargs)
@@ -270,7 +270,7 @@ class ModelSerializer(BaseModelSerializer):
 
         # Irritating case: If this class uses the default serializer, *and*
         # the viewset does also, then this is a match.
-        if (type(self).__name__ == 'DefaultSerializer' and 
+        if (type(self).__name__ == 'DefaultSerializer' and
                     isinstance(self, ModelSerializer) and
                     viewset.model == self.opts.model):
             return True

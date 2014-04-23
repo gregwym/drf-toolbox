@@ -25,7 +25,7 @@ class RouterTests(unittest.TestCase):
         class PhonyViewSet(viewsets.ModelViewSet):
             model = PhonyModel
 
-            @base_action({ 'POST' })
+            @base_action(set(['POST']))
             def special(self, request):
                 pass
 
@@ -58,7 +58,7 @@ class RouterTests(unittest.TestCase):
         class PhonyViewSetII(viewsets.ModelViewSet):
             model = PhonyModelII
 
-            @base_action({ 'POST' })
+            @base_action(set(['POST']))
             def special(self, request):
                 pass
 
@@ -89,7 +89,7 @@ class RouterTests(unittest.TestCase):
             model = PhonyModelIII
             lookup_field = 'foo'
 
-            @base_action({ 'POST' })
+            @base_action(set(['POST']))
             def special(self, request):
                 pass
 
@@ -120,7 +120,7 @@ class RouterTests(unittest.TestCase):
             model = PhonyModelIV
             lookup_regex = '[0123456789]+'
 
-            @base_action({ 'POST' })
+            @base_action(set(['POST']))
             def special(self, request):
                 pass
 

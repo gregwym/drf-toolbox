@@ -1,6 +1,4 @@
 from distutils.core import setup
-from os.path import dirname, realpath
-from os import sep
 from setuptools import find_packages
 from setuptools.command.test import test as TestCommand
 import sys
@@ -24,6 +22,13 @@ class Tox(TestCommand):
         import tox  # Import here, because outside eggs aren't loaded.
         sys.exit(tox.cmdline(self.test_args))
 
+# Python 2.6 compatibility
+# Add importlib as requirement if does not exists
+install_requires = open(pip_requirements, 'r').read().strip().split('\n')
+try:
+    import importlib
+except ImportError:
+    install_requires.append('importlib')
 
 setup(
     # Basic metadata
@@ -40,7 +45,7 @@ setup(
     zip_safe=False,
 
     # How to do the install
-    install_requires=open(pip_requirements, 'r').read().strip().split('\n'),
+    install_requires=install_requires,
     provides=[
         'drf_toolbox',
     ],
